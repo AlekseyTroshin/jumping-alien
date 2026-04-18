@@ -17,9 +17,10 @@ public class Main : MonoBehaviour
     [SerializeField] private TMP_Text _timerText;
     [SerializeField] private TimeWork _timeWork;
     [SerializeField] private float _counDown;
+    [SerializeField] private GameObject inventoryPanel;
 
     private float _timer = 0f;
-  
+
 
     private void Start()
     {   
@@ -98,7 +99,9 @@ public class Main : MonoBehaviour
         Time.timeScale = 0f;
         _player.enabled = false;
         _winScreen.SetActive(true);
-
+        inventoryPanel.SetActive(false);
+        GetComponent<Inventory>().RecountItems(); 
+        
         if (!PlayerPrefs.HasKey("Level") || 
             PlayerPrefs.GetInt("Level") < SceneManager.GetActiveScene().buildIndex)
         {
@@ -106,9 +109,11 @@ public class Main : MonoBehaviour
         }
 
         if (PlayerPrefs.HasKey("Coints"))
-            PlayerPrefs.SetInt("Coints",PlayerPrefs.GetInt("Coints") + _player.Coints);
+            PlayerPrefs.SetInt("Coints", PlayerPrefs.GetInt("Coints") + _player.Coints);
         else
             PlayerPrefs.SetInt("Coints", _player.Coints);
+
+           
     }
 
     public void LoseGame()
@@ -116,6 +121,9 @@ public class Main : MonoBehaviour
         Time.timeScale = 0f;
         _player.enabled = false;
         _loseScreen.SetActive(true);
+        inventoryPanel.SetActive(false); 
+
+        GetComponent<Inventory>().RecountItems();
     }
 
     public void MenuLvl()

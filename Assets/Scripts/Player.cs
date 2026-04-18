@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Image _hitDownImageFace;
     [SerializeField] private Image _hitDownImageHeart;
     [SerializeField] private float _timeSwitchControllerBlue = 5;
+    [SerializeField] private Inventory inventory;
 
     private float _hitDownTimerLava = 0f;
     private bool _isPlayerInLava = false;
@@ -208,6 +209,7 @@ public class Player : MonoBehaviour
         {
             Destroy(collision.gameObject);
             key = true;
+            inventory.AddKey();
         }
 
         if(collision.gameObject.tag == "Door")
@@ -231,10 +233,11 @@ public class Player : MonoBehaviour
             coints++;
         }
 
-        if (collision.gameObject.tag == "Heart" && currentHP < maxHP)
+        if (collision.gameObject.tag == "Heart")
         {
             Destroy(collision.gameObject);
-            RecountHP(1);
+            // RecountHP(1);
+            inventory.AddHeart();
         }
 
         if (collision.gameObject.tag == "Mushroom")
@@ -243,16 +246,16 @@ public class Player : MonoBehaviour
             RecountHP(-1);
         }
 
-        if (collision.gameObject.tag == "BlueGem" && canHit && !invulnerabilityGem.activeSelf)
+        if (collision.gameObject.tag == "BlueGem")
         {
             Destroy(collision.gameObject);
-            StartCoroutine(NoHit());
+            inventory.AddBlueGem();
         }
 
-        if (collision.gameObject.tag == "GreenGem" && !speedGem.activeSelf)
+        if (collision.gameObject.tag == "GreenGem")
         {
             Destroy(collision.gameObject);
-            StartCoroutine(SpeedBonus());
+            inventory.AddGreenGem();
         }
 
         if (collision.gameObject.tag == "Lava")
@@ -359,7 +362,7 @@ public class Player : MonoBehaviour
         anim.SetBool("isJump", false);
     }
 
-    private IEnumerator NoHit()
+    public IEnumerator NoHit()
     {
         canHit = false;
         invulnerabilityGem.SetActive(true);
@@ -376,7 +379,7 @@ public class Player : MonoBehaviour
         PositionGemHint(speedGem);
     }
 
-    private IEnumerator SpeedBonus()
+    public IEnumerator SpeedBonus()
     {
         speed = speed * 2;
         speedGem.SetActive(true);
@@ -413,6 +416,16 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(time);
         if (spr.color.a > 0)
             StartCoroutine(Invis(spr, time));
+    }
+
+    public void ActiveBlueGem()
+    {
+        StartCoroutine(NoHit());
+    }
+
+    public void ActiveGreenGem()
+    {
+        StartCoroutine(SpeedBonus());
     }
 
 }
