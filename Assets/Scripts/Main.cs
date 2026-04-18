@@ -19,6 +19,7 @@ public class Main : MonoBehaviour
     [SerializeField] private float _counDown;
 
     private float _timer = 0f;
+  
 
     private void Start()
     {   
@@ -48,8 +49,11 @@ public class Main : MonoBehaviour
         else if ((int)_timeWork == 2)
         {
             _timer -= Time.deltaTime;
-            if (_timer < 0) _timer = 0.00f;
-            _timerText.text = _timer.ToString("F2").Replace(",", ":");
+            if (_timer < 0) _timer = 0;
+            // _timerText.text = _timer.ToString("F2").Replace(",", ":");
+            int seconds = (int)_timer - ((int)_timer / 60) * 60;
+            _timerText.text = ((int)_timer / 60).ToString() + ":" + seconds.ToString("D2");
+                ;
             if (_timer <= 0)
             {
                 LoseGame();

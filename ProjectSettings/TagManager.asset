@@ -17,6 +17,9 @@ TagManager:
   - QuickSand
   - Icy
   - MagicCarpet
+  - Lava
+  - SwitchControllerBlueStart
+  - SwitchControllerBlueStop
   layers:
   - Default
   - TransparentFX

@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -28,7 +29,15 @@ public class Player : MonoBehaviour
     public GameObject invulnerabilityGem;
     public GameObject speedGem;
     public int gemCount = 0;
+    [SerializeField] private Image _hitDownImageFace;
+    [SerializeField] private Image _hitDownImageHeart;
+    [SerializeField] private float _timeSwitchControllerBlue = 5;
 
+    private float _hitDownTimerLava = 0f;
+    private bool _isPlayerInLava = false;
+    
+    private float _hitDownTimerSwitchControllerBlue = 0f;
+    private bool _isHitDownSwitchControllerBlue = false;
 
 
 
@@ -70,7 +79,32 @@ public class Player : MonoBehaviour
         {
             rb.AddForce(transform.up * jumpHeight, ForceMode2D.Impulse);
         }
-    
+
+        if (_isPlayerInLava)
+        {
+            _hitDownTimerLava += Time.deltaTime;
+            _hitDownImageFace.fillAmount = 1 - (_hitDownTimerLava / 3f);
+            if (_hitDownTimerLava >= 3f)
+            {
+                _hitDownTimerLava = 0;
+                _hitDownImageFace.fillAmount = 1;
+                RecountHP(-1);
+            }
+        }
+
+        if (_isHitDownSwitchControllerBlue)
+        {
+            _hitDownTimerSwitchControllerBlue += Time.deltaTime;
+            _hitDownImageHeart.fillAmount = 1 - (_hitDownTimerSwitchControllerBlue / _timeSwitchControllerBlue);
+            if (_hitDownTimerSwitchControllerBlue >= _timeSwitchControllerBlue)
+            {
+                _isHitDownSwitchControllerBlue = false;
+                _hitDownImageHeart.fillAmount = 1f;
+                _hitDownImageHeart.gameObject.SetActive(false);
+                _hitDownTimerSwitchControllerBlue = 0;
+                RecountHP(-1);
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -126,8 +160,6 @@ public class Player : MonoBehaviour
 
     private IEnumerator OnHit(int hit)
     {
-        
-        
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
 
         if (hit < 0 && canHit)
@@ -222,6 +254,27 @@ public class Player : MonoBehaviour
             Destroy(collision.gameObject);
             StartCoroutine(SpeedBonus());
         }
+
+        if (collision.gameObject.tag == "Lava")
+        {
+            _isPlayerInLava = true;
+            _hitDownImageFace.gameObject.SetActive(true);
+        }
+
+        if (collision.gameObject.tag == "SwitchControllerBlueStart")
+        {
+            _isHitDownSwitchControllerBlue = true;
+            _hitDownImageHeart.gameObject.SetActive(true);
+        }
+
+        if (collision.gameObject.tag == "SwitchControllerBlueStop")
+        {
+            _hitDownTimerSwitchControllerBlue = 0;
+            _isHitDownSwitchControllerBlue = false;
+            _hitDownImageHeart.fillAmount = 1f;
+            _hitDownImageHeart.gameObject.SetActive(false);
+        }
+        
     }
 
     private IEnumerator TPWait()
@@ -229,7 +282,7 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(2f);
         canTP = true;
     }
-
+    
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Ladder")
@@ -264,6 +317,14 @@ public class Player : MonoBehaviour
         {
             rb.gravityScale = 1f;
             speed = speedAverage;
+        }
+
+        if (collision.gameObject.tag == "Lava")
+        {
+           _hitDownTimerLava = 0;
+           _isPlayerInLava = false;
+           _hitDownImageFace.fillAmount = 1;
+           _hitDownImageFace.gameObject.SetActive(false);
         }
     }
 
