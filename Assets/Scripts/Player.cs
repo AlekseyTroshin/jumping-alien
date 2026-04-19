@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Image _hitDownImageHeart;
     [SerializeField] private float _timeSwitchControllerBlue = 5;
     [SerializeField] private Inventory inventory;
+    [SerializeField] private SoundEffecter _soundEffecter;
 
     private float _hitDownTimerLava = 0f;
     private bool _isPlayerInLava = false;
@@ -79,6 +80,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true && !isLadder)
         {
             rb.AddForce(transform.up * jumpHeight, ForceMode2D.Impulse);
+            _soundEffecter.PlayJumpSound();
         }
 
         if (_isPlayerInLava)
@@ -231,6 +233,7 @@ public class Player : MonoBehaviour
         {
             Destroy(collision.gameObject);
             coints++;
+            _soundEffecter.PlayCointSound();
         }
 
         if (collision.gameObject.tag == "Heart")

@@ -17,7 +17,9 @@ public class Main : MonoBehaviour
     [SerializeField] private TMP_Text _timerText;
     [SerializeField] private TimeWork _timeWork;
     [SerializeField] private float _counDown;
-    [SerializeField] private GameObject inventoryPanel;
+    [SerializeField] private GameObject _inventoryPanel;
+    [SerializeField] private SoundEffecter _soundEffecter;
+    [SerializeField] private AudioSource _musicSource, _soundSource;
 
     private float _timer = 0f;
 
@@ -28,6 +30,10 @@ public class Main : MonoBehaviour
 
         if ((int)_timeWork == 2)
             _timer = _counDown;
+
+        _musicSource.volume = PlayerPrefs.GetInt("MusicVolume") / (float)10;
+        _soundSource.volume = PlayerPrefs.GetInt("SoundVolume") / (float)10;
+        
     }
 
     private void Update()
@@ -99,9 +105,10 @@ public class Main : MonoBehaviour
         Time.timeScale = 0f;
         _player.enabled = false;
         _winScreen.SetActive(true);
-        inventoryPanel.SetActive(false);
-        GetComponent<Inventory>().RecountItems(); 
-        
+        _inventoryPanel.SetActive(false);
+        GetComponent<Inventory>().RecountItems();
+        _soundEffecter.PlayWinSound();
+
         if (!PlayerPrefs.HasKey("Level") || 
             PlayerPrefs.GetInt("Level") < SceneManager.GetActiveScene().buildIndex)
         {
@@ -121,7 +128,8 @@ public class Main : MonoBehaviour
         Time.timeScale = 0f;
         _player.enabled = false;
         _loseScreen.SetActive(true);
-        inventoryPanel.SetActive(false); 
+        _inventoryPanel.SetActive(false);
+        _soundEffecter.PlayLoseSound();
 
         GetComponent<Inventory>().RecountItems();
     }

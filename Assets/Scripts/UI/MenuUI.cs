@@ -9,6 +9,8 @@ public class MenuUI : MonoBehaviour
     [SerializeField] private Player _player;
     [SerializeField] private Button[] _levels;
     [SerializeField] private TMP_Text _cointText;
+    [SerializeField] private Slider _musicSlider, _soundSlider;
+    [SerializeField] private TMP_Text _musicText, _soundText;
 
     private int cointsGlobal = 0;
 
@@ -24,7 +26,18 @@ public class MenuUI : MonoBehaviour
             PlayerPrefs.SetInt("GemGreen", 0);
 
         if (PlayerPrefs.HasKey("Coints"))
-            cointsGlobal = PlayerPrefs.GetInt("Coints"); 
+            cointsGlobal = PlayerPrefs.GetInt("Coints");
+
+        if (!PlayerPrefs.HasKey("MusicVolume"))
+            PlayerPrefs.SetInt("MusicVolume", 3);
+
+        if (!PlayerPrefs.HasKey("SoundVolume"))
+            PlayerPrefs.SetInt("SoundVolume", 3);
+
+        _musicSlider.value = PlayerPrefs.GetInt("MusicVolume");
+        _soundSlider.value = PlayerPrefs.GetInt("SoundVolume");
+        _musicText.text = PlayerPrefs.GetInt("MusicVolume").ToString();
+        _soundText.text = PlayerPrefs.GetInt("SoundVolume").ToString();
     }
 
     private void Update()
@@ -33,6 +46,11 @@ public class MenuUI : MonoBehaviour
             _cointText.text = PlayerPrefs.GetInt("Coints").ToString();
         else
             _cointText.text = "0";
+
+        PlayerPrefs.SetInt("MusicVolume", (int)_musicSlider.value);
+        PlayerPrefs.SetInt("SoundVolume", (int)_soundSlider.value);
+        _musicText.text = _musicSlider.value.ToString();
+        _soundText.text = _soundSlider.value.ToString();
     }
 
     public void CheckLevels()
