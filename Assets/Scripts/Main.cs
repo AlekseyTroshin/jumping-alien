@@ -48,6 +48,10 @@ public class Main : MonoBehaviour
                 _hearts[i].sprite = _nonLife;
         }
 
+    }
+
+    private void FixedUpdate()
+    {
         if ((int)_timeWork == 1)
         {
             _timer += Time.deltaTime;
@@ -55,22 +59,20 @@ public class Main : MonoBehaviour
         }
         else if ((int)_timeWork == 2)
         {
-            _timer -= Time.deltaTime;
-            if (_timer < 0) _timer = 0;
-            // _timerText.text = _timer.ToString("F2").Replace(",", ":");
-            int seconds = (int)_timer - ((int)_timer / 60) * 60;
-            _timerText.text = ((int)_timer / 60).ToString() + ":" + seconds.ToString("D2");
-                ;
             if (_timer <= 0)
             {
                 LoseGame();
             }
+            _timer -= Time.deltaTime;
+            if (_timer < 0) _timer = 0;
+            int seconds = (int)_timer - ((int)_timer / 60) * 60;
+            _timerText.text = ((int)_timer / 60).ToString() + ":" + seconds.ToString("D2");
+            
         }
         else
         {
             _timerText.transform.parent.gameObject.SetActive(false);
         }
-        
     }
 
     public void ReloadLvl()

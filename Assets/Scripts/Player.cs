@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,6 +30,7 @@ public class Player : MonoBehaviour
     public GameObject invulnerabilityGem;
     public GameObject speedGem;
     public int gemCount = 0;
+    public Joystick joystick;
     [SerializeField] private Image _hitDownImageFace;
     [SerializeField] private Image _hitDownImageHeart;
     [SerializeField] private float _timeSwitchControllerBlue = 5;
@@ -37,9 +39,9 @@ public class Player : MonoBehaviour
 
     private float _hitDownTimerLava = 0f;
     private bool _isPlayerInLava = false;
-    
     private float _hitDownTimerSwitchControllerBlue = 0f;
     private bool _isHitDownSwitchControllerBlue = false;
+    private float _moveVertical;
 
 
 
@@ -55,18 +57,21 @@ public class Player : MonoBehaviour
     private void Update()
     { 
         
+        if (transform.position.y < -100)
+            main.LoseGame();
+
         if (inWater && !isLadder)
         {
             animator.SetInteger("State", 4);
             isGrounded = true;
-            if (Input.GetAxis("Horizontal") != 0)
+            if (joystick.Horizontal >= 0.3f || joystick.Horizontal <= -0.3f)
                 Flip();
         }
         else
         {
             GroundCheck();
 
-            if (Input.GetAxis("Horizontal") == 0 && isGrounded && !isLadder)
+            if (joystick.Horizontal < 0.3f && joystick.Horizontal > -0.3f && isGrounded && !isLadder)
             {
                 animator.SetInteger("State", 1);
             }
@@ -76,11 +81,6 @@ public class Player : MonoBehaviour
                 if (isGrounded && !isLadder)
                     animator.SetInteger("State", 2);
             }
-        } 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true && !isLadder)
-        {
-            rb.AddForce(transform.up * jumpHeight, ForceMode2D.Impulse);
-            _soundEffecter.PlayJumpSound();
         }
 
         if (_isPlayerInLava)
@@ -110,16 +110,30 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    public void Jump()
     {
-        rb.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * speed, rb.linearVelocity.y);
+        if (isGrounded == true && !isLadder)
+        {
+            rb.AddForce(transform.up * jumpHeight, ForceMode2D.Impulse);
+            _soundEffecter.PlayJumpSound();
+        }
+    }
+
+    private void FixedUpdate()
+    { 
+        if (joystick.Horizontal > 0.3f)
+            rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
+        else if (joystick.Horizontal < -0.3f)
+            rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
+        else 
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
     }
 
     private void Flip()
     {
-        if (Input.GetAxis("Horizontal") > 0)
+        if (joystick.Horizontal > 0.3f)
             transform.localRotation = Quaternion.Euler(0, 0, 0);
-        else if (Input.GetAxis("Horizontal") < 0)
+        else if (joystick.Horizontal < 0.3f)
             transform.localRotation = Quaternion.Euler(0, 180, 0);
     }
 
@@ -157,7 +171,7 @@ public class Player : MonoBehaviour
         if (currentHP <= 0)
         {
             GetComponent<CapsuleCollider2D>().enabled = false;
-            Invoke("Lose", 1.5f);
+            main.LoseGame();
         }
     } 
 
@@ -198,11 +212,6 @@ public class Player : MonoBehaviour
         }
             
         hitCoroutine = null;
-    }
-
-    public void Lose()
-    {
-        main.GetComponent<Main>().LoseGame();
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
@@ -295,12 +304,20 @@ public class Player : MonoBehaviour
         {
             isLadder = true;
             rb.bodyType = RigidbodyType2D.Kinematic;
-            if (Input.GetAxis("Vertical") == 0)
+            if (joystick.Vertical == 0)
                 animator.SetInteger("State", 5);
             else
             {
+
+                if (joystick.Vertical > 0)
+                    _moveVertical = 1;
+                else if (joystick.Vertical < 0)
+                    _moveVertical = -1;
+                else
+                    _moveVertical = 0;
+
                 animator.SetInteger("State", 6);
-                transform.Translate(Vector3.up * Input.GetAxis("Vertical") * speed * 0.5f * Time.deltaTime);     
+                transform.Translate(Vector3.up *  _moveVertical * speed * 0.5f * Time.deltaTime);     
             }
         }
 
